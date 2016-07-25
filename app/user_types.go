@@ -25,6 +25,10 @@ type tokenPayload struct {
 	RedirectURI *string `json:"redirect_uri,omitempty" xml:"redirect_uri,omitempty" form:"redirect_uri,omitempty"`
 	// The refresh token issued to the client, used for refreshing an access token
 	RefreshToken *string `json:"refresh_token,omitempty" xml:"refresh_token,omitempty" form:"refresh_token,omitempty"`
+	// The client id for access
+	ClientId *string `json:"client_id,omitempty" xml:"client_id,omitempty" form:"client_id,omitempty"`
+	// The client secret for access
+	ClientSecret *string `json:"client_secret,omitempty" xml:"client_secret,omitempty" form:"client_secret,omitempty"`
 	// The scope of the access request, used for refreshing an access token
 	Scope *string `json:"scope,omitempty" xml:"scope,omitempty" form:"scope,omitempty"`
 }
@@ -36,8 +40,8 @@ func (ut *tokenPayload) Validate() (err error) {
 	}
 
 	if ut.GrantType != nil {
-		if !(*ut.GrantType == "authorization_code" || *ut.GrantType == "refresh_token") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.grant_type`, *ut.GrantType, []interface{}{"authorization_code", "refresh_token"}))
+		if !(*ut.GrantType == "authorization_code" || *ut.GrantType == "refresh_token" || *ut.GrantType == "client_credentials") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.grant_type`, *ut.GrantType, []interface{}{"authorization_code", "refresh_token", "client_credentials"}))
 		}
 	}
 	return
@@ -58,6 +62,12 @@ func (ut *tokenPayload) Publicize() *TokenPayload {
 	if ut.RefreshToken != nil {
 		pub.RefreshToken = ut.RefreshToken
 	}
+	if ut.ClientId != nil {
+		pub.ClientId = ut.ClientId
+	}
+	if ut.ClientSecret != nil {
+		pub.ClientSecret = ut.ClientSecret
+	}
 	if ut.Scope != nil {
 		pub.Scope = ut.Scope
 	}
@@ -76,6 +86,10 @@ type TokenPayload struct {
 	RedirectURI *string `json:"redirect_uri,omitempty" xml:"redirect_uri,omitempty" form:"redirect_uri,omitempty"`
 	// The refresh token issued to the client, used for refreshing an access token
 	RefreshToken *string `json:"refresh_token,omitempty" xml:"refresh_token,omitempty" form:"refresh_token,omitempty"`
+	// The client id for access
+	ClientId *string `json:"client_id,omitempty" xml:"client_id,omitempty" form:"client_id,omitempty"`
+	// The client secret for access
+	ClientSecret *string `json:"client_secret,omitempty" xml:"client_secret,omitempty" form:"client_secret,omitempty"`
 	// The scope of the access request, used for refreshing an access token
 	Scope *string `json:"scope,omitempty" xml:"scope,omitempty" form:"scope,omitempty"`
 }
@@ -86,8 +100,8 @@ func (ut *TokenPayload) Validate() (err error) {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "grant_type"))
 	}
 
-	if !(ut.GrantType == "authorization_code" || ut.GrantType == "refresh_token") {
-		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.grant_type`, ut.GrantType, []interface{}{"authorization_code", "refresh_token"}))
+	if !(ut.GrantType == "authorization_code" || ut.GrantType == "refresh_token" || ut.GrantType == "client_credentials") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.grant_type`, ut.GrantType, []interface{}{"authorization_code", "refresh_token", "client_credentials"}))
 	}
 	return
 }

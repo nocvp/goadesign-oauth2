@@ -77,6 +77,10 @@ var (
 	// "client_id" query string.
 	MissingClientID = errorToMedia(NewError(ErrInvalidRequest, "missing client ID", ""))
 
+	// MissingClientID is the response returned upon receiving a Authorize request with no
+	// "client_id" query string.
+	MissingClientSecret = errorToMedia(NewError(ErrInvalidRequest, "missing client Secret", ""))
+
 	// MissingCode is the response returned upon receiving a GetToken request with no
 	// "code" form value in the request body.
 	MissingCode = errorToMedia(NewError(ErrInvalidRequest, "missing authorization code", ""))
@@ -99,7 +103,7 @@ var (
 
 	// InvalidGrantType is the response returned upon receiving a GetToken request with an
 	// invalid grant_type form value.
-	InvalidGrantType = errorToMedia(NewError(ErrInvalidGrant, `invalid grant type, must be "authorization_code" or "refresh_token"`, ""))
+	InvalidGrantType = errorToMedia(NewError(ErrInvalidGrant, `invalid grant type, must be "authorization_code", "refresh_token" or "client_credentials"`, ""))
 
 	// MissingRefreshToken is the response returned upon receiving a GetToken request with
 	// grant type "refresh_token" and no refresh token.

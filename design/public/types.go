@@ -17,7 +17,7 @@ var OAuth2TokenPayload = Type("TokenPayload", func() {
 see https://tools.ietf.org/html/rfc6749#section-4.1.3 and https://tools.ietf.org/html/rfc6749#section-6`)
 	Attribute("grant_type", String, `Value MUST be set to "authorization_code" when obtaining initial refresh and access token.
 Value MUST be set to "refresh_token" when refreshing an access token.`, func() {
-		Enum("authorization_code", "refresh_token")
+		Enum("authorization_code", "refresh_token", "client_credentials")
 	})
 
 	// Initial refresh and access token request payload
@@ -27,6 +27,10 @@ Value MUST be set to "refresh_token" when refreshing an access token.`, func() {
 	// Refresh token payload
 	Attribute("refresh_token", String, "The refresh token issued to the client, used for refreshing an access token")
 	Attribute("scope", String, "The scope of the access request, used for refreshing an access token")
+
+	// Client Credentials payload
+	Attribute("client_id", String, "The client id for access")
+	Attribute("client_secret", String, "The client secret for access")
 
 	Required("grant_type")
 })

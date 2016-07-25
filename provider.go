@@ -48,6 +48,8 @@ type (
 		// otherwise a generic error HTTP response is sent back to the client.
 		Refresh(refreshToken, scope string) (newRefreshToken, accessToken string, expiresIn int, err error)
 
+		GetTokenByCredentials(clientId string, clientSecret string) (accessToken string, expiresIn int, err error)
+
 		// Authenticate performs client authentication as described in
 		// https://tools.ietf.org/html/rfc6749#section-2.3
 		// It should return nil if the client is authorized, a non-nil error otherwise.
@@ -92,12 +94,12 @@ func NewOAuth2ClientBasicAuthMiddleware(provider Provider) goa.Middleware {
 // code as a query string value.
 func (c *ProviderController) Authorize(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 	var (
-		query        = req.URL.Query()
-		clientID     = query.Get("client_id")
+		query = req.URL.Query()
+		clientID = query.Get("client_id")
 		responseType = query.Get("response_type")
-		redirectURI  = query.Get("redirect_uri")
-		scope        = query.Get("scope")
-		state        = query.Get("state")
+		redirectURI = query.Get("redirect_uri")
+		scope = query.Get("scope")
+		state = query.Get("state")
 	)
 	// Ensure there is a client identifier
 	if clientID == "" {
@@ -143,7 +145,7 @@ func (c *ProviderController) Authorize(ctx context.Context, rw http.ResponseWrit
 
 // GetToken runs the get_token action.
 func (c *ProviderController) GetToken(ctx context.Context, rw http.ResponseWriter, grantType string,
-	code, redirectURI, refreshToken, scope *string) error {
+code, redirectURI, refreshToken, scope *string) error {
 
 	if grantType == "authorization_code" {
 		return c.exchange(ctx, rw, code, redirectURI)
@@ -229,6 +231,32 @@ func (c *ProviderController) refresh(ctx context.Context, rw http.ResponseWriter
 	}
 	if scope != nil {
 		m.Scope = scope
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+
+	return c.Service.Send(ctx, http.StatusOK, &m)
+}
+
+// refresh refreshes an access token given a refresh token.
+func (c *ProviderController) getTokenByCredentials(ctx context.Context, rw http.ResponseWriter, clientId string, clientSecret string) error {
+	// Ensure there is a refresh token
+	if clientId == nil {
+		return c.Service.Send(ctx, http.StatusBadRequest, MissingClientID)
+	}
+	if clientSecret == nil {
+		return c.Service.Send(ctx, http.StatusBadRequest, MissingClientSecret)
+	}
+
+	accessToken, expiresIn, err := c.provider.GetTokenByCredentials(clientId, clientSecret)
+	if err != nil {
+		return c.Service.Send(ctx, http.StatusBadRequest, errorToMedia(err))
+	}
+
+	m := app.TokenMedia{
+		AccessToken: accessToken,
+		TokenType:   "Bearer",
+		ExpiresIn:   expiresIn,
 	}
 
 	rw.Header().Set("Content-Type", "application/json")

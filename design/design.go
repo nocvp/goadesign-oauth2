@@ -3,7 +3,7 @@ package design
 import (
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/apidsl"
-	. "github.com/goadesign/oauth2/design/public"
+	. "semih/goadesign-oauth/design/public"
 )
 
 // OAuth2 initializes the design definitions needed to implement a OAuth2 provider.
@@ -64,6 +64,15 @@ func OAuth2(authorizationEndpoint, tokenEndpoint string, dsl ...func()) *Securit
 
 		Action("get_token", func() {
 			Description("Get access token from authorization code or refresh token")
+			Routing(POST(tokenEndpoint))
+			Security(OAuth2ClientBasicAuth)
+			Payload(OAuth2TokenPayload)
+			Response(OK, OAuth2TokenMedia)
+			Response(BadRequest, OAuth2ErrorMedia)
+		})
+
+		Action("get_token_by_credentials", func() {
+			Description("Get access token from client credentials")
 			Routing(POST(tokenEndpoint))
 			Security(OAuth2ClientBasicAuth)
 			Payload(OAuth2TokenPayload)
