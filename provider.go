@@ -145,13 +145,16 @@ func (c *ProviderController) Authorize(ctx context.Context, rw http.ResponseWrit
 
 // GetToken runs the get_token action.
 func (c *ProviderController) GetToken(ctx context.Context, rw http.ResponseWriter, grantType string,
-code, redirectURI, refreshToken, scope *string) error {
+code, redirectURI, refreshToken, clientId, clientSecret, scope *string) error {
 
 	if grantType == "authorization_code" {
 		return c.exchange(ctx, rw, code, redirectURI)
 	}
 	if grantType == "refresh_token" {
 		return c.refresh(ctx, rw, refreshToken, scope)
+	}
+	if grantType == "client_credentials" {
+		return c.getTokenByCredentials(ctx, rw, clientId, clientSecret)
 	}
 	return c.Service.Send(ctx, http.StatusBadRequest, InvalidGrantType)
 }
