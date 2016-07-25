@@ -244,10 +244,10 @@ func (c *ProviderController) refresh(ctx context.Context, rw http.ResponseWriter
 // refresh refreshes an access token given a refresh token.
 func (c *ProviderController) getTokenByCredentials(ctx context.Context, rw http.ResponseWriter, clientId string, clientSecret string) error {
 	// Ensure there is a refresh token
-	if clientId == nil {
+	if clientId == "" {
 		return c.Service.Send(ctx, http.StatusBadRequest, MissingClientID)
 	}
-	if clientSecret == nil {
+	if clientSecret == "" {
 		return c.Service.Send(ctx, http.StatusBadRequest, MissingClientSecret)
 	}
 
@@ -259,7 +259,7 @@ func (c *ProviderController) getTokenByCredentials(ctx context.Context, rw http.
 	m := app.TokenMedia{
 		AccessToken: accessToken,
 		TokenType:   "Bearer",
-		ExpiresIn:   expiresIn,
+		ExpiresIn:   *expiresIn,
 	}
 
 	rw.Header().Set("Content-Type", "application/json")
